@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/imhshekhar47/go-rest-api/src/controller"
-	"github.com/imhshekhar47/go-rest-api/src/core"
+	"github.com/imhshekhar47/go-rest-api/controller"
+	"github.com/imhshekhar47/go-rest-api/core"
 	"log"
 	"strings"
 )

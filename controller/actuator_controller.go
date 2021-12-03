@@ -2,8 +2,8 @@ package controller
 
 import(
 	"github.com/gin-gonic/gin"
-	"github.com/imhshekhar47/go-rest-api/src/core"
-	"github.com/imhshekhar47/go-rest-api/src/model"
+	"github.com/imhshekhar47/go-rest-api/core"
+	"github.com/imhshekhar47/go-rest-api/model"
 )
 // Interface definition
 type IActuatorController interface {
