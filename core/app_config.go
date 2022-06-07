@@ -31,7 +31,7 @@ func readAppConfigProperty(filename string) (appConfigProps, error) {
 	for {
 		line, err := reader.ReadString('\n')
 
-		if equal :=strings.Index(line, "="); equal >=0 {
+		if equal := strings.Index(line, "="); equal >= 0 {
 			if key := strings.TrimSpace(line[:equal]); len(key) > 0 {
 				value := ""
 				if len(line) > equal {
@@ -52,9 +52,8 @@ func readAppConfigProperty(filename string) (appConfigProps, error) {
 	return configProps, nil
 }
 
-
 type applicationConfig struct {
-	Name string `json:"name" binding:"required"`
+	Name    string `json:"name" binding:"required"`
 	Version string `json:"version"`
 }
 
@@ -74,7 +73,7 @@ Returns the singleton instance of AppConfig
 func GetAppConfig() AppConfig {
 	config := AppConfig{
 		Application: applicationConfig{
-			Name: "Application",
+			Name:    "Application",
 			Version: "v1-SNAPSHOT",
 		},
 		Server: serverConfig{
