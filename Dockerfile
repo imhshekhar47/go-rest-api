@@ -1,4 +1,4 @@
-FROM golang:1.18.3-alpine as builder
+FROM REPOSITORY_BASE_URI/golang:1.18.3-alpine as builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN apk update \
 
 #----
 
-FROM alpine
+FROM REPOSITORY_BASE_URI/alpine:latest
 LABEL "author"="Himanshu Shekhar <himanshu.shekhar.in@gmail.com>"
 
 WORKDIR /app
