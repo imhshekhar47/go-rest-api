@@ -2,21 +2,38 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/imhshekhar47/go-rest-api/controller"
 	"github.com/imhshekhar47/go-rest-api/core"
-	"log"
-	"strings"
 )
 
 var (
+
+	// config
 	appConfig core.AppConfig = core.GetAppConfig()
+
+	// controller
 	actuatorController controller.IActuatorController = controller.GetActuatorController()
 )
 
+var logger = core.GetLogger("main")
+
 func main() {
-	log.Println("entry: main")
+
+	logger.Info("entry: main")
 	server := gin.New()
+
+	server.GET("/", func(ctx *gin.Context) {
+		location := url.URL{
+			Path: "/actuator/health",
+		}
+		ctx.Redirect(http.StatusMovedPermanently, location.RequestURI())
+	})
 
 	actuatorRoutes := server.Group("/actuator")
 	{
@@ -24,9 +41,11 @@ func main() {
 		actuatorRoutes.GET("/info", actuatorController.Info)
 	}
 
-	log.Printf(fmt.Sprintf("Starting server in %s mode", appConfig.Server.Mode))
-	if "RELEASE" == strings.ToUpper(appConfig.Server.Mode) {
+	logger.Infof("Starting server in %s mode on 0.0.0.0:%s", appConfig.Server.Mode, appConfig.Server.Port)
+
+	if strings.ToUpper(appConfig.Server.Mode) == "RELEASE" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
 	server.Run(fmt.Sprintf("0.0.0.0:%s", appConfig.Server.Port))
 }

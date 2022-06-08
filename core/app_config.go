@@ -3,10 +3,30 @@ package core
 import (
 	"bufio"
 	"io"
-	"log"
 	"os"
 	"strings"
 )
+
+type applicationConfig struct {
+	Name    string `json:"name" binding:"required"`
+	Version string `json:"version"`
+}
+
+type serverConfig struct {
+	Mode string `json:"mode"`
+	Port string `json:"port"`
+}
+
+type AppConfig struct {
+	Application applicationConfig `json:"application"`
+	Server      serverConfig      `json:"server"`
+}
+
+/* GetAppConfig:
+Returns the singleton instance of AppConfig
+*/
+
+var logger = GetLogger("core")
 
 // Singleton instance
 var instance *AppConfig
@@ -14,6 +34,7 @@ var instance *AppConfig
 type appConfigProps map[string]string
 
 func readAppConfigProperty(filename string) (appConfigProps, error) {
+	logger.Tracef("entry: readAppConfigProperty(%s)", filename)
 	configProps := appConfigProps{}
 
 	if len(filename) == 0 {
@@ -49,68 +70,53 @@ func readAppConfigProperty(filename string) (appConfigProps, error) {
 		}
 	}
 
+	logger.Tracef("exit: readAppConfigProperty()")
 	return configProps, nil
 }
 
-type applicationConfig struct {
-	Name    string `json:"name" binding:"required"`
-	Version string `json:"version"`
-}
-
-type serverConfig struct {
-	Mode string `json:"mode"`
-	Port string `json:"port"`
-}
-
-type AppConfig struct {
-	Application applicationConfig `json:"application"`
-	Server      serverConfig      `json:"server"`
-}
-
-/* GetAppConfig:
-Returns the singleton instance of AppConfig
-*/
-func GetAppConfig() AppConfig {
-	config := AppConfig{
-		Application: applicationConfig{
-			Name:    "Application",
-			Version: "v1-SNAPSHOT",
-		},
-		Server: serverConfig{
-			Mode: "DEVELOPMENT",
-			Port: "8080",
-		},
+func ExistOrDefault(value string, defaultValue string) string {
+	trimmedValue := strings.Trim(value, " ")
+	if len(trimmedValue) > 0 {
+		return trimmedValue
 	}
+
+	return defaultValue
+}
+
+func ConfigExistOrElse(configMap map[string]string, key string, envKey string, defaultValue string) string {
+	var value string = defaultValue
+	if val, found := configMap[key]; found {
+		logger.Tracef("Config[%s] found as '%s'\n", key, val)
+		value = val
+	} else if val, found := os.LookupEnv(envKey); found {
+		logger.Tracef("ENV[%s] found as '%s'\n", envKey, val)
+		value = val
+	}
+
+	return ExistOrDefault(value, defaultValue)
+}
+
+func GetAppConfig() AppConfig {
 
 	if nil == instance {
 
 		configProps, err := readAppConfigProperty("application.properties")
-
-		if val, found := configProps["application.name"]; found {
-			config.Application.Name = val
-		}
-
-		if val, found := os.LookupEnv("APP_NAME"); found {
-			config.Application.Name = val
-		}
-
-		if val, found := configProps["server.port"]; found {
-			config.Server.Port = val
-		}
-
-		if val, found := os.LookupEnv("APP_PORT"); found {
-			config.Server.Port = val
-		}
-
-		if val, found := configProps["server.mode"]; found {
-			config.Server.Mode = val
-		}
-
 		if err != nil {
-			log.Printf(err.Error())
-			return config
+			logger.Warnf("Error while reading config from application.properties")
 		}
+
+		instance = &AppConfig{
+			Application: applicationConfig{
+				Name:    ConfigExistOrElse(configProps, "application.name", "APP_NAME", "Application"),
+				Version: ConfigExistOrElse(configProps, "application.version", "APP_VERSION", "0.0.1-snapshot"),
+			},
+			Server: serverConfig{
+				Mode: ConfigExistOrElse(configProps, "server.mode", "SERVER_MODE", "DEVELOPMENT"),
+				Port: ConfigExistOrElse(configProps, "server.port", "SERVER_PORT", "8080"),
+			},
+		}
+
 	}
 
-	return config
+	return *instance
 }

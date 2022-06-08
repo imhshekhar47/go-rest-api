@@ -5,8 +5,10 @@
 ### Environment configurations
 You can configure using the environment variables
 ```shell
+LOG_LEVEL=
 APP_NAME=
-APP_PORT=
+APP_VERSION=
+SERVER_PORT=
 ```
 
 ### Application Properties
