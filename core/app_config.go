@@ -13,8 +13,9 @@ type applicationConfig struct {
 }
 
 type serverConfig struct {
-	Mode string `json:"mode"`
-	Port string `json:"port"`
+	Mode     string `json:"mode"`
+	Port     string `json:"port"`
+	BasePath string `json:"base_path"`
 }
 
 type AppConfig struct {
@@ -111,8 +112,9 @@ func GetAppConfig() AppConfig {
 				Version: ConfigExistOrElse(configProps, "application.version", "APP_VERSION", "0.0.1-snapshot"),
 			},
 			Server: serverConfig{
-				Mode: ConfigExistOrElse(configProps, "server.mode", "SERVER_MODE", "DEVELOPMENT"),
-				Port: ConfigExistOrElse(configProps, "server.port", "SERVER_PORT", "8080"),
+				Mode:     ConfigExistOrElse(configProps, "server.mode", "SERVER_MODE", "DEVELOPMENT"),
+				Port:     ConfigExistOrElse(configProps, "server.port", "SERVER_PORT", "8080"),
+				BasePath: ConfigExistOrElse(configProps, "server.base_path", "SERVER_BASE_PATH", ""),
 			},
 		}
 

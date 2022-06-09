@@ -19,6 +19,7 @@ var (
 
 	// controller
 	actuatorController controller.IActuatorController = controller.GetActuatorController()
+	apiGreetController controller.IGreetController    = controller.GetGreetController()
 )
 
 var logger = core.GetLogger("main")
@@ -39,6 +40,11 @@ func main() {
 	{
 		actuatorRoutes.GET("/health", actuatorController.Health)
 		actuatorRoutes.GET("/info", actuatorController.Info)
+	}
+
+	apiRoutes := server.Group(fmt.Sprintf("%s/api", appConfig.Server.BasePath))
+	{
+		apiRoutes.GET("/greet", apiGreetController.Hello)
 	}
 
 	logger.Infof("Starting server in %s mode on 0.0.0.0:%s", appConfig.Server.Mode, appConfig.Server.Port)
